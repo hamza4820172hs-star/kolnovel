@@ -1,46 +1,42 @@
-name: Android APK
+name: Android Release APK
 
 on:
   workflow_dispatch:
   push:
-    branches: [ main, master ]
-    paths:
-      - '**'
-      - '!README.md'
+    branches: [main, master]
 
 jobs:
   build:
-    name: Build debug APK
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Set up Java
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Generate native Android project
+      - name: Generate Android project
         run: npx expo prebuild --platform android --non-interactive
 
-      - name: Build debug APK
+      - name: Build release APK
         working-directory: android
-        run: chmod +x gradlew && ./gradlew assembleDebug
+        run: chmod +x gradlew && ./gradlew assembleRelease
 
-      - name: Upload APK
+      - name: Upload release APK
         uses: actions/upload-artifact@v4
         with:
-          name: NovelReader-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: NovelReader-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
